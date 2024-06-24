@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	_ resource.Resource = &firecrestFileResource{}
+	_ resource.Resource              = &firecrestFileResource{}
 	_ resource.ResourceWithConfigure = &firecrestFileResource{}
 )
 
@@ -22,10 +22,9 @@ type firecrestFileResource struct {
 	client *FirecrestClient
 }
 
-
 type firecrestFileResourceModel struct {
-	ID	types.String `tfsdk:"id"`
-	SourcePath types.String `tfsdk:"source_path"`
+	ID              types.String `tfsdk:"id"`
+	SourcePath      types.String `tfsdk:"source_path"`
 	DestinationPath types.String `tfsdk:"destination_path"`
 }
 
@@ -49,8 +48,7 @@ func (r *firecrestFileResource) Schema(_ context.Context, req resource.SchemaReq
 	}
 }
 
-
-func (r *firecrestFileResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp * resource.ConfigureResponse) {
+func (r *firecrestFileResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -76,7 +74,6 @@ func (r *firecrestFileResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	
 }
 
 func (r *firecrestFileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {

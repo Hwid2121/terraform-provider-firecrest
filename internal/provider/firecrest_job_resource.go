@@ -25,30 +25,27 @@ type firecrestJobResource struct {
 }
 
 type firecrestJobResourceModel struct {
-	ID types.String `tfsdk:"id"`
-	JobID types.String `tfsdk:"job_id"`
-	State types.String `tfsdk:"state"`
-	OutputFile types.String `tfsdk:"output_file"`
-	JobScript types.String `tfsdk:"job_script"`
+	ID          types.String `tfsdk:"id"`
+	JobID       types.String `tfsdk:"job_id"`
+	State       types.String `tfsdk:"state"`
+	OutputFile  types.String `tfsdk:"output_file"`
+	JobScript   types.String `tfsdk:"job_script"`
 	MachineName types.String `tfsdk:"machine_name"`
 	AccountName types.String `tfsdk:"account"`
-	Env types.String `tfsdk:"env"`
+	Env         types.String `tfsdk:"env"`
 
-	JobName types.String `tfsdk:"job_name"`
-	Email types.String `tfsdk:"email"`
-	Hours types.Int64 `tfsdk:"hours"`
-	Minutes types.Int64 `tfsdk:"minutes"`
-	Nodes types.Int64 `tfsdk:"nodes"`
-	TasksPerCore types.Int64 `tfsdk:"tasks_per_core"`
-	TasksPerNode types.Int64 `tfsdk:"tasks_per_node"`
-	CpuPerTask types.Int64 `tfsdk:"cpus_per_task"`
-	Partition types.String `tfsdk:"partition"`
-	Constraint types.String `tfsdk:"constraint"`
-	Executable types.String `tfsdk:"executable"`
+	JobName      types.String `tfsdk:"job_name"`
+	Email        types.String `tfsdk:"email"`
+	Hours        types.Int64  `tfsdk:"hours"`
+	Minutes      types.Int64  `tfsdk:"minutes"`
+	Nodes        types.Int64  `tfsdk:"nodes"`
+	TasksPerCore types.Int64  `tfsdk:"tasks_per_core"`
+	TasksPerNode types.Int64  `tfsdk:"tasks_per_node"`
+	CpuPerTask   types.Int64  `tfsdk:"cpus_per_task"`
+	Partition    types.String `tfsdk:"partition"`
+	Constraint   types.String `tfsdk:"constraint"`
+	Executable   types.String `tfsdk:"executable"`
 }
-
-
-
 
 // Schema implements resource.Resource.
 func (f *firecrestJobResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -57,92 +54,87 @@ func (f *firecrestJobResource) Schema(ctx context.Context, req resource.SchemaRe
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description: "Numeric identifier of the job.",
-				Computed: true,
+				Computed:    true,
 			},
 			"job_id": schema.StringAttribute{
 				Description: "The job ID of the submitted job.",
-				Computed: true,
+				Computed:    true,
 			},
 			"state": schema.StringAttribute{
 				Description: "The state of the job.",
-				Computed: true,
+				Computed:    true,
 			},
 			"output_file": schema.StringAttribute{
 				Description: "The path to the job's output File.",
-				Computed: true,
+				Computed:    true,
 			},
 			"job_script": schema.StringAttribute{
 				Description: "The sbatch script to be submitted.",
-				Optional: true,
+				Optional:    true,
 			},
 			"machine_name": schema.StringAttribute{
 				Description: "The name of the machine where the job will run.",
-				Required: true,
+				Required:    true,
 			},
 			"account": schema.StringAttribute{
 				Description: "Account name for the job.",
-				Required: true,
+				Required:    true,
 			},
 			"env": schema.StringAttribute{
 				Description: "The environment variables for the job.",
-				Optional: true,
+				Optional:    true,
 			},
 
 			"job_name": schema.StringAttribute{
 				Description: "The name for job.",
-				Required: true,
+				Required:    true,
 			},
-		
+
 			"email": schema.StringAttribute{
 				Description: "Specify your email address to get notified when the job changes state.",
-				Optional: true,
+				Optional:    true,
 			},
 			"hours": schema.Int64Attribute{
 				Description: "The hours allocated for the job.",
-				Required: true,
+				Required:    true,
 			},
 			"minutes": schema.Int64Attribute{
 				Description: "The minutes allocated for the job.",
-				Required: true,
+				Required:    true,
 			},
 			"nodes": schema.Int64Attribute{
 				Description: "Specify the number of nodes.",
-				Required: true,
+				Required:    true,
 			},
 			"tasks_per_core": schema.Int64Attribute{
 				Description: "The number of tasks per core. Values greater than one turn hyperthreading on.",
-				Required: true,
+				Required:    true,
 			},
 			"tasks_per_node": schema.Int64Attribute{
 				Description: "The number of tasks per node. Defines the number of MPI ranks per node. The maximum value depends on the number of cpus per task.",
-				Required: true,
+				Required:    true,
 			},
 			"cpus_per_task": schema.Int64Attribute{
 				Description: "The number of cpus per task. Defines the number of OpenMP threads per MPI rank. The maximum value depends on the number of tasks per node.",
-				Required: true,
+				Required:    true,
 			},
 			"partition": schema.StringAttribute{
 				Description: "The partition on which you want to submit your job. (normal, low, xfer, debug, prepost)",
-				Required: true,
+				Required:    true,
 			},
 			"constraint": schema.StringAttribute{
 				Description: "The constraint for the job submission.",
-				Optional: true,
+				Optional:    true,
 			},
 			"executable": schema.StringAttribute{
 				Description: "The executable to run in the job.",
-				Required: true,
+				Required:    true,
 			},
-
-
-
 		},
 	}
 }
 
-
-
-func (r *firecrestJobResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp * resource.ConfigureResponse) {
+func (r *firecrestJobResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -159,32 +151,23 @@ func (r *firecrestJobResource) Configure(ctx context.Context, req resource.Confi
 	r.client = providerConfig.client
 }
 
-
-
-
-
 // Metadata implements resource.Resource.
 func (f *firecrestJobResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_job"
 }
 
-
-
 // Create implements resource.Resource.
-func (r *firecrestJobResource) Create(ctx context.Context,req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan firecrestJobResourceModel
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
-		return 
+		return
 	}
-
-
 
 	var jobScript string
 	var err error
-
 
 	if plan.JobScript.IsNull() {
 		jobScript, err = generateJobScript(plan)
@@ -199,45 +182,38 @@ func (r *firecrestJobResource) Create(ctx context.Context,req resource.CreateReq
 		jobScript = plan.JobScript.ValueString()
 	}
 
-
-	taskID, err := r.client.UploadJob(jobScript,  
-									 plan.AccountName.ValueString(), 
-									 plan.Env.ValueString(), 
-									 plan.MachineName.ValueString())
+	taskID, err := r.client.UploadJob(jobScript,
+		plan.AccountName.ValueString(),
+		plan.Env.ValueString(),
+		plan.MachineName.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error submitting Job",
 			fmt.Sprintf("Could not submit job: %s", err.Error()),
 		)
-		return 
+		return
 	}
-	
+
 	ctx = tflog.SetField(ctx, "Task ID: ", taskID)
 	tflog.Debug(ctx, "Created Task!")
 
-	 
-	
 	jobID, err := r.client.WaitForJobID(ctx, taskID)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error waiting for jobID",
 			fmt.Sprintf("Could not get job ID: %s", err.Error()),
 		)
-		return 
+		return
 	}
-
 
 	ctx = tflog.SetField(ctx, "JOBID2: ", jobID)
 
-
 	tflog.Debug(ctx, "CREATE status")
-
 
 	plan.ID = types.StringValue(jobID)
 	plan.JobID = types.StringValue(jobID)
 	plan.State = types.StringValue("SUBMITTED")
 	plan.OutputFile = types.StringValue("")
-
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -245,28 +221,26 @@ func (r *firecrestJobResource) Create(ctx context.Context,req resource.CreateReq
 		return
 	}
 
-
 }
 
 // Delete implements resource.Resource.
-func (f *firecrestJobResource) Delete(ctx context.Context,req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (f *firecrestJobResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var plan firecrestJobResourceModel
 	diags := req.State.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
-		return 
+		return
 	}
 
-	err := f.client.DeleteJob(plan.JobID.ValueString(), plan.MachineName.ValueString()) 
+	err := f.client.DeleteJob(plan.JobID.ValueString(), plan.MachineName.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Deleting Job", 
+			"Error Deleting Job",
 			fmt.Sprintf("Could not delete job: %s", err.Error()),
 		)
-		return 
+		return
 	}
- }
-
+}
 
 // Read implements resource.Resource.
 func (f *firecrestJobResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -278,10 +252,8 @@ func (f *firecrestJobResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-
-
 	jobID := plan.JobID.String()
-    jobID = strings.Trim(jobID, "=\"")
+	jobID = strings.Trim(jobID, "=\"")
 
 	ctx = tflog.SetField(ctx, "JOBID: ", jobID)
 	tflog.Debug(ctx, "READ status")
@@ -300,90 +272,83 @@ func (f *firecrestJobResource) Read(ctx context.Context, req resource.ReadReques
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
-		return 
+		return
 	}
 }
 
-	// Update implements resource.Resource.
-	func (f *firecrestJobResource) Update(ctx context.Context,req resource.UpdateRequest, resp *resource.UpdateResponse) {
-		var plan firecrestJobResourceModel
-		
-		diags := req.Plan.Get(ctx, &plan)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
+// Update implements resource.Resource.
+func (f *firecrestJobResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan firecrestJobResourceModel
 
-		var jobScript string
-		var err error
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-		if plan.JobScript.IsNull() {
-			jobScript, err = generateJobScript(plan)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error generating updated Job Script",
-					fmt.Sprintf("Could not generate job script: %s", err.Error()),
-				)
-				return
-			}
-		} else {
-			jobScript = plan.JobScript.ValueString()
-		}
+	var jobScript string
+	var err error
 
-		newTaskID, err := f.client.UploadJob(
-			jobScript, plan.AccountName.ValueString(),
-			plan.Env.ValueString(), plan.MachineName.ValueString())
-
+	if plan.JobScript.IsNull() {
+		jobScript, err = generateJobScript(plan)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error updating Job",
-				fmt.Sprintf("Could not update job: %s", err.Error()),
+				"Error generating updated Job Script",
+				fmt.Sprintf("Could not generate job script: %s", err.Error()),
 			)
 			return
 		}
+	} else {
+		jobScript = plan.JobScript.ValueString()
+	}
 
+	newTaskID, err := f.client.UploadJob(
+		jobScript, plan.AccountName.ValueString(),
+		plan.Env.ValueString(), plan.MachineName.ValueString())
 
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error updating Job",
+			fmt.Sprintf("Could not update job: %s", err.Error()),
+		)
+		return
+	}
 
-		ctx = tflog.SetField(ctx, "New Task ID: ", newTaskID)
-		tflog.Debug(ctx, "Created new Task for update!")
+	ctx = tflog.SetField(ctx, "New Task ID: ", newTaskID)
+	tflog.Debug(ctx, "Created new Task for update!")
 
-		newJobID, err := f.client.WaitForJobID(ctx, newTaskID)
+	newJobID, err := f.client.WaitForJobID(ctx, newTaskID)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error waiting for new jobID",
+			fmt.Sprintf("Could not get new job ID: %s", err.Error()),
+		)
+		return
+	}
+
+	// Optionally delete the old job
+	if plan.JobID.ValueString() != "" {
+		err = f.client.DeleteJob(plan.JobID.ValueString(), plan.MachineName.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error waiting for new jobID",
-				fmt.Sprintf("Could not get new job ID: %s", err.Error()),
+				"Error deleting old Job",
+				fmt.Sprintf("Could not delete old job: %s", err.Error()),
 			)
-			return
-		}
-
-
-		// Optionally delete the old job
-		if plan.JobID.ValueString() != "" {
-			err = f.client.DeleteJob(plan.JobID.ValueString(), plan.MachineName.ValueString())
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error deleting old Job",
-					fmt.Sprintf("Could not delete old job: %s", err.Error()),
-				)
-				return
-			}
-		}
-
-
-		plan.ID = types.StringValue(newJobID)
-		plan.JobID = types.StringValue(newJobID)
-		plan.State = types.StringValue("UPDATED")
-		plan.OutputFile = types.StringValue("")
-	
-		diags = resp.State.Set(ctx, &plan)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
 			return
 		}
 	}
 
+	plan.ID = types.StringValue(newJobID)
+	plan.JobID = types.StringValue(newJobID)
+	plan.State = types.StringValue("UPDATED")
+	plan.OutputFile = types.StringValue("")
 
-
+	diags = resp.State.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
 
 func generateJobScript(plan firecrestJobResourceModel) (string, error) {
 	walltime, err := ConvertHoursMinutesToWalltime(plan.Hours.ValueInt64(), plan.Minutes.ValueInt64())
@@ -424,7 +389,6 @@ srun %s
 	return script, nil
 }
 
-
 func optionalField(value, format string) string {
 	if value == "" {
 		return ""
@@ -440,5 +404,3 @@ func ConvertHoursMinutesToWalltime(hours, minutes int64) (string, error) {
 	walltime := fmt.Sprintf("%02d:%02d:00", hours, minutes)
 	return walltime, nil
 }
-
-

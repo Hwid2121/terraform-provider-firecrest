@@ -18,9 +18,9 @@ type fireDataSource struct {
 }
 
 type fireDataSourceModel struct {
-	Name types.String `tfsdk:"name"`
+	Name  types.String `tfsdk:"name"`
 	Token types.String `tfsdk:"token"`
-	ID types.String `tfsdk:"id"`
+	ID    types.String `tfsdk:"id"`
 }
 
 func (d *fireDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -33,15 +33,15 @@ func (d *fireDataSource) Schema(_ context.Context, req datasource.SchemaRequest,
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description: "Placeholder identifier attribute for testing.",
-				Computed: true,
+				Computed:    true,
 			},
 			"name": schema.StringAttribute{
 				Description: "The name of the Data Source.",
-				Required: true,
+				Required:    true,
 			},
 			"token": schema.StringAttribute{
 				Description: "The temporary API token for the firecrREST API.",
-				Computed: true,
+				Computed:    true,
 			},
 		},
 	}
@@ -53,7 +53,7 @@ func (d *fireDataSource) Configure(ctx context.Context, req datasource.Configure
 	if req.ProviderData == nil {
 		return
 	}
-	
+
 	providerConfig, ok := req.ProviderData.(*firecrestProvider)
 	if !ok {
 		resp.Diagnostics.AddError(
@@ -68,9 +68,7 @@ func (d *fireDataSource) Configure(ctx context.Context, req datasource.Configure
 
 }
 
-
 func (d *fireDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-
 
 	var state fireDataSourceModel
 	if d.client == nil {
@@ -78,14 +76,12 @@ func (d *fireDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		return
 	}
 
-
 	state.ID = types.StringValue("placeholder")
-
 
 	state.Token = types.StringValue(d.client.apiToken)
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
-		return 
+		return
 	}
 }

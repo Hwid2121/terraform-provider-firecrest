@@ -118,9 +118,6 @@ func (c *FirecrestClient) DeleteFile(sourcePath, targetPath string) error {
 	return nil
 }
 
-/*
-	REST management for tasks
-*/
 func (c *FirecrestClient) GetTaskStatus(ctx context.Context, taskID string) (*TaskStatus, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/tasks/%s", c.baseURL, taskID), nil)
 
@@ -189,10 +186,6 @@ func (c *FirecrestClient) WaitForJobID(ctx context.Context, taskID string) (stri
 	}
 
 }
-
-/*
-	REST management for JOB
-*/
 
 func (c *FirecrestClient) DeleteJob(jobID, machineName string) error {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/compute/jobs/%s", c.baseURL, jobID), nil)

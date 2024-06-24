@@ -1,18 +1,7 @@
 package provider
 
 import (
-	// "bytes"
 	"context"
-	// "fmt"
-	// "log"
-
-	// "encoding/json"
-	// "fmt"
-
-	// "go/types"
-	// "net/http"
-	// "net/url"
-	// "net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/function"
@@ -21,14 +10,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 
-	// "github.com/enescakir/emoji"
 
-	// "github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// const baseURL = "https://firecrest.cscs.ch"
+// const baseURL = "https://firecrest.cscs.ch".
 const baseURL = "/auth/realms/firecrest-clients/protocol/openid-connect/token"
 
 // Ensure ScaffoldingProvider satisfies various provider interfaces.

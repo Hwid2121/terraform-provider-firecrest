@@ -5,19 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	// "strings"
-
-	// "strings"
-
-	// "strings"
-
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	// "golang.org/x/mod/sumdb/tlog"
-	// "github.com/hashicorp/terraform-plugin-log/tflog"
-	// "github.com/hashicorp/terraform-svchost/disco"
 )
 
 var (
@@ -93,7 +84,7 @@ func (f *firecrestJobResource) Schema(ctx context.Context, req resource.SchemaRe
 				Required: true,
 			},
 			"env": schema.StringAttribute{
-				Description: "The enviroment variables for the job.",
+				Description: "The environment variables for the job.",
 				Optional: true,
 			},
 
@@ -236,23 +227,17 @@ func (r *firecrestJobResource) Create(ctx context.Context,req resource.CreateReq
 	}
 
 
-
-	// ctx = tflog.SetField(ctx, "JOBID: ", types.StringValue(jobID))
 	ctx = tflog.SetField(ctx, "JOBID2: ", jobID)
-	// ctx = tflog.SetField(ctx, "JOBID3: ", ./)
 
 
 	tflog.Debug(ctx, "CREATE status")
 
 
-	// jobID = strings.TrimLeft(jobID, "=") // Ensure no leading "="
 	plan.ID = types.StringValue(jobID)
 	plan.JobID = types.StringValue(jobID)
 	plan.State = types.StringValue("SUBMITTED")
 	plan.OutputFile = types.StringValue("")
-	// plan.Env = types.StringValue("")
-	// plan.MachineName = types.StringValue("")
-	// plan.AccountName = types.StringValue("")
+
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -293,12 +278,7 @@ func (f *firecrestJobResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	// Clean the job ID before using it
-	// jobID := "54037022"
-	// jobID := plan.JobID.ValueString()
-    // if strings.HasPrefix(jobID, "=") {
-        // jobID = jobID[1:]
-    // }
+
 
 	jobID := plan.JobID.String()
     jobID = strings.Trim(jobID, "=\"")
@@ -316,7 +296,6 @@ func (f *firecrestJobResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	plan.State = types.StringValue(jobStatus.Success)
-	// state.OutputFile = types.StringValue(jobStatus.OutputFile)
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -405,16 +384,6 @@ func (f *firecrestJobResource) Read(ctx context.Context, req resource.ReadReques
 
 
 
-
-
-
-// func generateOptionalParameters(plan firecrestJobResourceModel) string {
-// 	params := ""
-// 	if !plan.Constraint.IsNull() {
-// 		params += fmt.Sprintf("#SBATCH --contraint=%s\n", plan.Constraint.ValueString())
-// 	}
-// 	return params
-// }
 
 func generateJobScript(plan firecrestJobResourceModel) (string, error) {
 	walltime, err := ConvertHoursMinutesToWalltime(plan.Hours.ValueInt64(), plan.Minutes.ValueInt64())

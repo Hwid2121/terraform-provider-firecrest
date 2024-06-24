@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     firecrest = {
-      source  = "registry.terraform.io/hashicorp/firecrest"
+      source = "registry.terraform.io/hashicorp/firecrest"
       # version = "0.1.0"
     }
   }

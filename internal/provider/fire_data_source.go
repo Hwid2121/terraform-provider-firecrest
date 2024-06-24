@@ -3,16 +3,10 @@ package provider
 import (
 	"context"
 	"fmt"
-	// "log"
-
-	// "net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-
-	// "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	// "github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func NewFireDataSource() datasource.DataSource {
@@ -70,7 +64,6 @@ func (d *fireDataSource) Configure(ctx context.Context, req datasource.Configure
 	}
 
 	d.client = providerConfig.client
-	// d.apiToken = providerConfig.apiToken
 	resp.Diagnostics.AddWarning("Data Source Configuration", "Configured FirecREST data source successfully.")
 
 }
@@ -84,8 +77,6 @@ func (d *fireDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		resp.Diagnostics.AddError("Client Error", "The client is not configured")
 		return
 	}
-	// resp.Diagnostics.AddWarning("Data Soruce Read", fmt.Sprintf("API Token: %s", d.client.apiToken))
-	// tflog.Debug(ctx, "API Token: "+d.client.apiToken)
 
 
 	state.ID = types.StringValue("placeholder")
@@ -97,8 +88,4 @@ func (d *fireDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	if resp.Diagnostics.HasError() {
 		return 
 	}
-	
-	// config.Token = types.StringValue(d.client.apiToken)
-	// diags = resp.State.Set(ctx, &config)
-	// resp.Diagnostics.Append(diags...)
 }

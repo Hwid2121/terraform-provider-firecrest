@@ -10,19 +10,10 @@ import (
 	"mime/multipart"
 	"time"
 
-	// "os"
-	// "path/filepath"
-
-	// "time"
-
-	// "log"
 	"net/http"
 	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	// "golang.org/x/tools/go/analysis/passes/defers"
-	// "google.golang.org/grpc/internal/status"
-	// "google.golang.org/grpc/status"
 )
 
 type FirecrestClient struct {
@@ -109,7 +100,10 @@ func (c *FirecrestClient) GetToken(clientID, clientSecret string) (string, error
 	}
 
 	var result map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&result)
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", err
+	}
 
 	token, ok := result["access_token"].(string)
 	if !ok {
@@ -333,7 +327,11 @@ func (c *FirecrestClient) UploadJob(JobScript, Account, Env, MachineName string 
 
 
 	var result map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&result)
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", err
+	}
+
+	
 	
 	taskID, ok := result["task_id"].(string)
 	if !ok {

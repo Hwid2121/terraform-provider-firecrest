@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	// "github.com/hashicorp/terraform-plugin-log/tflog"
-	// "github.com/hashicorp/terraform-svchost/disco"
 )
 
 var (
@@ -90,7 +88,7 @@ func (r *firecrestFileResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	// TOOD implement read ogic to verify file status
+	// TODO implement read logic to verify file status
 }
 
 func (r *firecrestFileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

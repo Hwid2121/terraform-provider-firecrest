@@ -50,7 +50,7 @@ resource "firecrest_job" "example" {
 
 - `constraint` (String) The constraint for the job submission.
 - `email` (String) Specify your email address to get notified when the job changes state.
-- `env` (String) The enviroment variables for the job.
+- `env` (String) The environment variables for the job.
 - `job_script` (String) The sbatch script to be submitted.
 
 ### Read-Only

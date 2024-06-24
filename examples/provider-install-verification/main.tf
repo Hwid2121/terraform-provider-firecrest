@@ -14,12 +14,11 @@ provider "firecrest" {
 
 
 resource "firecrest_job" "job" {
-  # job_script = ""
   job_name       = "job-test"
   account        = var.account_name
   email          = var.account_email
   hours          = 0
-  minutes        = 1
+  minutes        = 30
   nodes          = 1
   tasks_per_core = 2
   tasks_per_node = 6

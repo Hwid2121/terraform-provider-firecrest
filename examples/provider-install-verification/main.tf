@@ -1,24 +1,25 @@
 terraform {
   required_providers {
     firecrest = {
-      source = "registry.terraform.io/hashicorp/firecrest"
-      # version = "0.1.0"
+      source  = "registry.terraform.io/hashicorp/firecrest"
+      version = "6.0"
     }
   }
 }
 
 provider "firecrest" {
-  client_id     = var.client_id
-  client_secret = var.client_secret
+  client_id     = "firecrest-ntafta-coder"
+  client_secret = "D1wLfcA3BfVzxYA7eJ7AivIEklWNTH3C"
 }
 
 
 resource "firecrest_job" "job" {
+  # job_script = ""
   job_name       = "job-test"
-  account        = var.account_name
-  email          = var.account_email
+  account        = "csstaff"
+  email          = "nicolotafta@gmail.com"
   hours          = 0
-  minutes        = 30
+  minutes        = 1
   nodes          = 1
   tasks_per_core = 2
   tasks_per_node = 6
@@ -35,5 +36,5 @@ resource "firecrest_job" "job" {
 
 
 output "firecrest_job_id" {
-  value = firecrest_job.job.id
+  value = "test"
 }

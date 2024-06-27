@@ -62,7 +62,6 @@ func NewFireCrestClient(clientID, clientSecret string) *FirecrestClient {
 		clientSecret: clientSecret,
 		httpClient:   &http.Client{},
 		baseURL:      "https://firecrest.cscs.ch",
-		// apiToken: apiToken,
 	}
 }
 
@@ -108,14 +107,6 @@ func (c *FirecrestClient) GetToken(clientID, clientSecret string) (string, error
 
 func (c *FirecrestClient) SetToken(token string) {
 	c.apiToken = token
-}
-
-func (c *FirecrestClient) UploadFile(sourcePath, targetPath string) error {
-	return nil
-}
-
-func (c *FirecrestClient) DeleteFile(sourcePath, targetPath string) error {
-	return nil
 }
 
 func (c *FirecrestClient) GetTaskStatus(ctx context.Context, taskID string) (*TaskStatus, error) {

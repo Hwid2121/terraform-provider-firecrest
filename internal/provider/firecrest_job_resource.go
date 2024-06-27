@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -368,11 +369,8 @@ func generateJobScript(plan firecrestJobResourceModel) (string, error) {
 #SBATCH --cpus-per-task=%d
 #SBATCH --partition=%s
 %s
+%s
 
-export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
-export CRAY_CUDA_MPS=1
-
-srun %s
 `,
 		plan.JobName.ValueString(),
 		plan.Email.ValueString(),
@@ -385,6 +383,19 @@ srun %s
 		optionalField(plan.Constraint.ValueString(), "#SBATCH --constraint=%s"),
 		plan.Executable.ValueString(),
 	)
+
+	file, err := os.Create("sbatch_script.sh")
+	if err != nil {
+		fmt.Println("Failed to create file:", err)
+		return "", err
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(script)
+	if err != nil {
+		fmt.Println("Failed to write to file:", err)
+		return "", err
+	}
 
 	return script, nil
 }

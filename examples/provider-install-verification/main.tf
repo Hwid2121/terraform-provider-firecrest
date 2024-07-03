@@ -37,3 +37,7 @@ resource "firecrest_job" "job" {
 output "firecrest_job_id" {
   value = firecrest_job.job.id
 }
+
+output "firecrest_task_id" {
+  value = firecrest_job.task.id
+}

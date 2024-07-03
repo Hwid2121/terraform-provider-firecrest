@@ -36,3 +36,5 @@ terraform.rc
 
 example/*
 examples/provider-install-verification/.terraform.lock.hcl
+examples/provider-intall-local/.terraform.lock.hcl
+examples/provider-intall-local/main.tf

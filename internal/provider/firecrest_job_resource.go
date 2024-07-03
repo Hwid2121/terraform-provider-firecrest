@@ -34,6 +34,7 @@ type firecrestJobResourceModel struct {
 	MachineName types.String `tfsdk:"machine_name"`
 	AccountName types.String `tfsdk:"account"`
 	Env         types.String `tfsdk:"env"`
+	TaskId      types.String `tfsdk:"task_id"`
 
 	JobName      types.String `tfsdk:"job_name"`
 	Email        types.String `tfsdk:"email"`
@@ -84,6 +85,11 @@ func (f *firecrestJobResource) Schema(ctx context.Context, req resource.SchemaRe
 			"env": schema.StringAttribute{
 				Description: "The environment variables for the job.",
 				Optional:    true,
+			},
+
+			"task_id": schema.StringAttribute{
+				Description: "The id of the task.",
+				Computed:    true,
 			},
 
 			"job_name": schema.StringAttribute{
@@ -211,6 +217,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 
 	tflog.Debug(ctx, "CREATE status")
 
+	plan.TaskId = types.StringValue(taskID)
 	plan.ID = types.StringValue(jobID)
 	plan.JobID = types.StringValue(jobID)
 	plan.State = types.StringValue("SUBMITTED")

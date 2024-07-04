@@ -58,5 +58,6 @@ resource "firecrest_job" "example" {
 - `id` (String) Numeric identifier of the job.
 - `job_id` (String) The job ID of the submitted job.
 - `output_file` (String) The path to the job's output File.
+- `path_url` (String) The IP of the computed Node.
 - `state` (String) The state of the job.
 - `task_id` (String) The id of the task.

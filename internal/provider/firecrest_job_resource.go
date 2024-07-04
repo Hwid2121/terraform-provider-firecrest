@@ -35,6 +35,7 @@ type firecrestJobResourceModel struct {
 	AccountName types.String `tfsdk:"account"`
 	Env         types.String `tfsdk:"env"`
 	TaskId      types.String `tfsdk:"task_id"`
+	PathURL     types.String `tfsdk:"path_url"`
 
 	JobName      types.String `tfsdk:"job_name"`
 	Email        types.String `tfsdk:"email"`
@@ -73,6 +74,10 @@ func (f *firecrestJobResource) Schema(ctx context.Context, req resource.SchemaRe
 			"job_script": schema.StringAttribute{
 				Description: "The sbatch script to be submitted.",
 				Optional:    true,
+			},
+			"path_url": schema.StringAttribute{
+				Description: "The IP of the computed Node.",
+				Computed:    true,
 			},
 			"machine_name": schema.StringAttribute{
 				Description: "The name of the machine where the job will run.",
@@ -204,6 +209,10 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	ctx = tflog.SetField(ctx, "Task ID: ", taskID)
 	tflog.Debug(ctx, "Created Task!")
 
+	path_url := "$SCRATCH/firecrest/" + taskID
+
+	ctx = tflog.SetField(ctx, "PATH URL taskID: ", path_url)
+
 	jobID, err := r.client.WaitForJobID(ctx, taskID)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -218,6 +227,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	tflog.Debug(ctx, "CREATE status")
 
 	plan.TaskId = types.StringValue(taskID)
+	plan.PathURL = types.StringValue(path_url)
 	plan.ID = types.StringValue(jobID)
 	plan.JobID = types.StringValue(jobID)
 	plan.State = types.StringValue("SUBMITTED")

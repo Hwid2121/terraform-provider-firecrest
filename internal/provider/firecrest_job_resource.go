@@ -37,6 +37,9 @@ type firecrestJobResourceModel struct {
 	TaskId      types.String `tfsdk:"task_id"`
 	PathURL     types.String `tfsdk:"path_url"`
 
+	NodeIP types.String `tfsdk:"node_ip"`
+	Client types.String `tfsdk:"client"`
+
 	JobName      types.String `tfsdk:"job_name"`
 	Email        types.String `tfsdk:"email"`
 	Hours        types.Int64  `tfsdk:"hours"`
@@ -110,6 +113,10 @@ func (f *firecrestJobResource) Schema(ctx context.Context, req resource.SchemaRe
 				Description: "The hours allocated for the job.",
 				Required:    true,
 			},
+			"node_ip": schema.StringAttribute{
+				Description: "The IP of the computed node.",
+				Computed:    true,
+			},
 			"minutes": schema.Int64Attribute{
 				Description: "The minutes allocated for the job.",
 				Required:    true,
@@ -140,6 +147,10 @@ func (f *firecrestJobResource) Schema(ctx context.Context, req resource.SchemaRe
 			},
 			"executable": schema.StringAttribute{
 				Description: "The executable to run in the job.",
+				Required:    true,
+			},
+			"client": schema.StringAttribute{
+				Description: "The name of the client.",
 				Required:    true,
 			},
 		},
@@ -222,6 +233,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	// creation of file containing the computed Node IP.
 	ctx = tflog.SetField(ctx, "JOBID2: ", jobID)
 
 	tflog.Debug(ctx, "CREATE status")
@@ -232,6 +244,17 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	plan.JobID = types.StringValue(jobID)
 	plan.State = types.StringValue("SUBMITTED")
 	plan.OutputFile = types.StringValue("")
+
+	nodeIP, err := r.client.TestingFileForIP(ctx, taskID, jobID, plan.Client.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error creating the file for node IP not coder.",
+			fmt.Sprintf("Could not create the file: %s", err.Error()),
+		)
+		return
+	}
+
+	plan.NodeIP = types.StringValue(nodeIP)
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -388,6 +411,17 @@ func generateJobScript(plan firecrestJobResourceModel) (string, error) {
 %s
 %s
 
+mkdir -p $SCRATCH/firecrest/$SLURM_JOBID
+
+# Get node IP
+node_name=$(scontrol show hostname $SLURM_JOB_NODELIST)
+node_ip=$(getent hosts $node_name | awk '{ print $1 }')
+
+# Log the node IP
+echo "Node name: $node_name"
+echo "Node IP: $node_ip"
+echo $node_ip > $SCRATCH/firecrest/$SLURM_JOBID/node_ip.txt
+echo "IP address written to $SCRATCH/firecrest/$SLURM_JOBID/node_ip.txt"
 `,
 		plan.JobName.ValueString(),
 		plan.Email.ValueString(),

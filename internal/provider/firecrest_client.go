@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"mime/multipart"
+	"strings"
 	"time"
 
 	"net/http"
@@ -236,6 +237,61 @@ func (c *FirecrestClient) GetJobStatus(ctx context.Context, jobID string, machin
 	tflog.Debug(ctx, "job status json")
 	return &jobStatus, nil
 
+}
+
+func (c *FirecrestClient) TestingFileForIP(ctx context.Context, taskID, jobID, account string) (string, error) {
+	if err := c.waitForTaskCompletition(ctx, taskID); err != nil {
+		return "", fmt.Errorf("failed to wait for task coompletition: %w", err)
+	}
+
+	content, err := c.downloadFileContent(ctx, jobID, account)
+	if err != nil {
+		return "", fmt.Errorf("failed to read job output file: %w", err)
+	}
+
+	return content, nil
+
+}
+
+func (c *FirecrestClient) downloadFileContent(ctx context.Context, jobID, account string) (string, error) {
+	url := fmt.Sprintf("%s/utilities/download?sourcePath=/scratch/snx3000/%s/firecrest/%s/node_ip.txt", c.baseURL, account, jobID)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+c.apiToken)
+	req.Header.Set("accept", "application/octet-stream")
+	req.Header.Set("X-Machine-Name", "daint")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		responseBody, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("failed to download file: %s", responseBody)
+	}
+
+	content, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	// Convert content to string and trim any extraneous whitespace or newlines
+	trimmedContent := strings.TrimSpace(string(content))
+
+	return trimmedContent, nil
+}
+
+func (c *FirecrestClient) waitForTaskCompletition(ctx context.Context, taskID string) error {
+
+	time.Sleep(30 * time.Second)
+
+	return nil
 }
 
 func (c *FirecrestClient) UploadJob(JobScript, Account, Env, MachineName string) (string, error) {

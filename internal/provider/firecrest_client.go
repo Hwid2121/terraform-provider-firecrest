@@ -240,9 +240,11 @@ func (c *FirecrestClient) GetJobStatus(ctx context.Context, jobID string, machin
 }
 
 func (c *FirecrestClient) TestingFileForIP(ctx context.Context, taskID, jobID, account string) (string, error) {
-	if err := c.waitForTaskCompletition(); err != nil {
-		return "", fmt.Errorf("failed to wait for task coompletition: %w", err)
-	}
+	// if err := c.waitForTaskCompletition(); err != nil {
+	// 	return "", fmt.Errorf("failed to wait for task coompletition: %w", err)
+	// }
+
+	time.Sleep(30 * time.Second)
 
 	content, err := c.downloadFileContent(ctx, jobID, account)
 	if err != nil {
@@ -287,12 +289,12 @@ func (c *FirecrestClient) downloadFileContent(ctx context.Context, jobID, accoun
 	return trimmedContent, nil
 }
 
-func (c *FirecrestClient) waitForTaskCompletition() error {
+// func (c *FirecrestClient) waitForTaskCompletition() error {
 
-	time.Sleep(30 * time.Second)
+// 	time.Sleep(30 * time.Second)
 
-	return nil
-}
+// 	return nil
+// }
 
 func (c *FirecrestClient) UploadJob(JobScript, Account, Env, MachineName string) (string, error) {
 

@@ -409,7 +409,6 @@ func generateJobScript(plan firecrestJobResourceModel) (string, error) {
 #SBATCH --cpus-per-task=%d
 #SBATCH --partition=%s
 %s
-%s
 
 mkdir -p $SCRATCH/firecrest/$SLURM_JOBID
 
@@ -422,6 +421,7 @@ echo "Node name: $node_name"
 echo "Node IP: $node_ip"
 echo $node_ip > $SCRATCH/firecrest/$SLURM_JOBID/node_ip.txt
 echo "IP address written to $SCRATCH/firecrest/$SLURM_JOBID/node_ip.txt"
+%s
 `,
 		plan.JobName.ValueString(),
 		plan.Email.ValueString(),

@@ -1,0 +1,24 @@
+# This file is maintained automatically by "terraform init".
+# Manual edits may be lost in future updates.
+
+provider "registry.terraform.io/hwid2121/firecrest" {
+  version = "0.2.5"
+  hashes = [
+    "h1:eR4wUSbB+cTb8D15CsLzmoRxG0iZyo41QhPuc04FBIA=",
+    "zh:04a09f6cc72cbac3d034fd7b81992623506ebb630fab984519d087b5aeb404f7",
+    "zh:2999505229a44f9d75838ea4cd3950d8a0073288fa105d590596d81c57b28c0f",
+    "zh:31041b61f8d6c6326d9d596cc27647aa7420e46f02275ed13ead638976388ff5",
+    "zh:420a036504a9cb31b5c69a53183f4e47de616c82439f4d49625ede0f6943b0a6",
+    "zh:4675ec8b631bb02f30ca012768e06626cfb73dd3e1b9a093ad0e21c5896d20da",
+    "zh:5ba812bfb62e851955ddc460a9dfdaf76994cdab3cdb294dad70d0beaef1ce75",
+    "zh:8338843ff2f8967cb8765af955badf92075d5d404091fcd4c7553a42869db137",
+    "zh:84a548d92dac2ef2e1b4f6bd0e0c694d18015da3ff1d29f95d3125c380d7f583",
+    "zh:890df766e9b839623b1f0437355032a3c006226a6c200cd911e15ee1a9014e9f",
+    "zh:8e9027c505f53cc84656fd97791ff1abce01e541a06de606c55a25636cf6a298",
+    "zh:b42e0353ae7540c6b0894fe46f8de5249f019a4857a0a42bc10167820f741804",
+    "zh:c1b60c5774869bc3cce2d6c402274e957904755f90245fb3ee59d80ec12c61ce",
+    "zh:cad12a8a11fa10fabba0d4c058a6a21ab48b563e3eb1bdbadee7078cff07717b",
+    "zh:d64a887a5524ae95873c491e989385e833ec938cb0865ec49da0f36c049bb526",
+    "zh:fb7d6ad5ad34f37efb61db2ea669659f9eafc1d82175ea06e84dcad1d229d705",
+  ]
+}

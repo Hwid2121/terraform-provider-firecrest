@@ -117,7 +117,7 @@ provider "firecrest" {
 
 resource "firecrest_job" "job" {
   # job_script = ""
-  client = "ntafta"
+  client         = "ntafta"
   job_name       = "coder-job"
   account        = "csstaff"
   email          = "nicolotafta@gmail.com"

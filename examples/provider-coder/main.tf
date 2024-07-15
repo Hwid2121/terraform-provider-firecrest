@@ -2,9 +2,9 @@ terraform {
   required_providers {
     firecrest = {
       source = "Hwid2121/firecrest"
-    # source = "registry.terraform.io/hashicorp/firecrest"
+      # source = "registry.terraform.io/hashicorp/firecrest"
 
-    #   version = "0.2.5"
+      #   version = "0.2.5"
     }
   }
 }
@@ -33,7 +33,7 @@ provider "firecrest" {
 
 resource "firecrest_job" "job" {
   # job_script = ""
-  client = "ntafta"
+  client         = "ntafta"
   job_name       = "coder-job"
   account        = "csstaff"
   email          = "nicolotafta@gmail.com"

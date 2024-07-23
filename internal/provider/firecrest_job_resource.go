@@ -26,6 +26,9 @@ type firecrestJobResource struct {
 }
 
 type firecrestJobResourceModel struct {
+	Token   types.String `tfsdk:"token"`
+	BaseURL types.String `tfsdk:"base_url"`
+
 	ID          types.String `tfsdk:"id"`
 	JobID       types.String `tfsdk:"job_id"`
 	State       types.String `tfsdk:"state"`
@@ -58,6 +61,14 @@ func (f *firecrestJobResource) Schema(ctx context.Context, req resource.SchemaRe
 	resp.Schema = schema.Schema{
 		Description: "Manages a FirecREST Job.",
 		Attributes: map[string]schema.Attribute{
+			"token": schema.StringAttribute{
+				Description: "Token from the KeyCloak loging.",
+				Optional:    true,
+			},
+			"base_url": schema.StringAttribute{
+				Description: "Base url for the API requests.",
+				Required:    true,
+			},
 			"id": schema.StringAttribute{
 				Description: "Numeric identifier of the job.",
 				Computed:    true,
@@ -189,6 +200,11 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	if r.client.apiToken == "" {
+		r.client.apiToken = plan.Token.ValueString()
+	}
+	r.client.baseURL = plan.BaseURL.ValueString()
+
 	var jobScript string
 	var err error
 
@@ -212,7 +228,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error submitting Job",
-			fmt.Sprintf("Could not submit job: %s", err.Error()),
+			fmt.Sprintf("Could not submit job: %s %s %s", r.client.baseURL, r.client.apiToken, err.Error()),
 		)
 		return
 	}
@@ -273,6 +289,11 @@ func (f *firecrestJobResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
+	if f.client.apiToken == "" {
+		f.client.apiToken = plan.Token.ValueString()
+	}
+	f.client.baseURL = plan.BaseURL.ValueString()
+
 	err := f.client.DeleteJob(plan.JobID.ValueString(), plan.MachineName.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -292,6 +313,11 @@ func (f *firecrestJobResource) Read(ctx context.Context, req resource.ReadReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	if f.client.apiToken == "" {
+		f.client.apiToken = plan.Token.ValueString()
+	}
+	f.client.baseURL = plan.BaseURL.ValueString()
 
 	jobID := plan.JobID.String()
 	jobID = strings.Trim(jobID, "=\"")
@@ -326,6 +352,11 @@ func (f *firecrestJobResource) Update(ctx context.Context, req resource.UpdateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	if f.client.apiToken == "" {
+		f.client.apiToken = plan.Token.ValueString()
+	}
+	f.client.baseURL = plan.BaseURL.ValueString()
 
 	var jobScript string
 	var err error

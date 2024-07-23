@@ -26,4 +26,3 @@ provider "firecrest" {
 
 - `client_id` (String) Client ID for firecREST API. Provided by https://oidc-dashboard-prod.cscs.ch/
 - `client_secret` (String, Sensitive) Client Secret for firecREST API. Provided by https://oidc-dashboard-prod.cscs.ch/
-- `client_token` (String, Sensitive) Client Token for firecREST API. Provided by the KeyCloak login.

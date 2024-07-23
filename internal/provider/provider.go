@@ -34,7 +34,6 @@ type firecrestProviderModel struct {
 	// Endpoint types.String `tfsdk:"endpoint"`
 	ClientID     types.String `tfsdk:"client_id"`
 	ClientSecret types.String `tfsdk:"client_secret"`
-	ClientToken  types.String `tfsdk:"client_token"`
 }
 
 func (p *firecrestProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -56,11 +55,11 @@ func (p *firecrestProvider) Schema(ctx context.Context, req provider.SchemaReque
 				Optional:    true,
 				Sensitive:   true,
 			},
-			"client_token": schema.StringAttribute{
-				Description: "Client Token for firecREST API. Provided by the KeyCloak login.",
-				Optional:    true,
-				Sensitive:   true,
-			},
+			// "client_token": schema.StringAttribute{
+			// 	Description: "Client Token for firecREST API. Provided by the KeyCloak login.",
+			// 	Optional:    true,
+			// 	Sensitive:   true,
+			// },
 		},
 	}
 }
@@ -78,7 +77,7 @@ func (p *firecrestProvider) Configure(ctx context.Context, req provider.Configur
 
 	clientID := config.ClientID.ValueString()
 	clientSecret := config.ClientSecret.ValueString()
-	clientToken := config.ClientToken.ValueString()
+	// clientToken := config.ClientToken.ValueString()
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -86,7 +85,7 @@ func (p *firecrestProvider) Configure(ctx context.Context, req provider.Configur
 
 	ctx = tflog.SetField(ctx, "clientID", clientID)
 	ctx = tflog.SetField(ctx, "client_secret", clientSecret)
-	ctx = tflog.SetField(ctx, "client_token", clientToken)
+	// ctx = tflog.SetField(ctx, "client_token", clientToken)
 
 	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "client_secret")
 	tflog.Debug(ctx, "Creating FirecREST Client")
@@ -94,15 +93,13 @@ func (p *firecrestProvider) Configure(ctx context.Context, req provider.Configur
 	client := NewFireCrestClient(baseURL, "")
 
 	var token string
-	if clientToken == "" {
+	if clientID != "" {
 		var err error
 		token, err = client.GetToken(clientID, clientSecret)
 		if err != nil {
 			resp.Diagnostics.AddError("Failed to retrieve token", err.Error())
 			return
 		}
-	} else {
-		token = clientToken
 	}
 
 	client.SetToken(token)
@@ -112,8 +109,11 @@ func (p *firecrestProvider) Configure(ctx context.Context, req provider.Configur
 	resp.ResourceData = p
 
 	tflog.Debug(ctx, "API Token"+token)
-	tflog.Info(ctx, "Configured FirecREST client successfully! ")
-
+	if token != "" {
+		tflog.Info(ctx, "Configured FirecREST client successfully! ")
+	} else {
+		tflog.Info(ctx, "Configured FirecREST client but waiting for the token from the keyCloak! ")
+	}
 }
 
 func (p *firecrestProvider) Resources(ctx context.Context) []func() resource.Resource {

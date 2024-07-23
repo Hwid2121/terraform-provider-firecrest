@@ -35,6 +35,7 @@ resource "firecrest_job" "example" {
 ### Required
 
 - `account` (String) Account name for the job.
+- `base_url` (String) Base url for the API requests.
 - `client` (String) The name of the client.
 - `cpus_per_task` (Number) The number of cpus per task. Defines the number of OpenMP threads per MPI rank. The maximum value depends on the number of tasks per node.
 - `executable` (String) The executable to run in the job.
@@ -53,6 +54,7 @@ resource "firecrest_job" "example" {
 - `email` (String) Specify your email address to get notified when the job changes state.
 - `env` (String) The environment variables for the job.
 - `job_script` (String) The sbatch script to be submitted.
+- `token` (String) Token from the KeyCloak loging.
 
 ### Read-Only
 

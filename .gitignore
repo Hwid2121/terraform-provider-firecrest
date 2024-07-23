@@ -35,6 +35,7 @@ override.tf.json
 terraform.rc
 
 example/*
+examples/*
 examples/provider-install-verification/.terraform.lock.hcl
 examples/provider-intall-local/.terraform.lock.hcl
 examples/provider-intall-local/main.tf

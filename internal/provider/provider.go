@@ -22,16 +22,12 @@ var _ provider.Provider = &firecrestProvider{}
 
 // ScaffoldingProvider defines the provider implementation.
 type firecrestProvider struct {
-	// version is set to the provider version on release, "dev" when the
-	// provider is built and ran locally, and "test" when running acceptance
-	// testing.
 	client  *FirecrestClient
 	version string
 }
 
 // type firecrestProviderModel describes the provider data model.
 type firecrestProviderModel struct {
-	// Endpoint types.String `tfsdk:"endpoint"`
 	ClientID     types.String `tfsdk:"client_id"`
 	ClientSecret types.String `tfsdk:"client_secret"`
 }
@@ -55,11 +51,6 @@ func (p *firecrestProvider) Schema(ctx context.Context, req provider.SchemaReque
 				Optional:    true,
 				Sensitive:   true,
 			},
-			// "client_token": schema.StringAttribute{
-			// 	Description: "Client Token for firecREST API. Provided by the KeyCloak login.",
-			// 	Optional:    true,
-			// 	Sensitive:   true,
-			// },
 		},
 	}
 }
@@ -77,7 +68,6 @@ func (p *firecrestProvider) Configure(ctx context.Context, req provider.Configur
 
 	clientID := config.ClientID.ValueString()
 	clientSecret := config.ClientSecret.ValueString()
-	// clientToken := config.ClientToken.ValueString()
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -85,7 +75,6 @@ func (p *firecrestProvider) Configure(ctx context.Context, req provider.Configur
 
 	ctx = tflog.SetField(ctx, "clientID", clientID)
 	ctx = tflog.SetField(ctx, "client_secret", clientSecret)
-	// ctx = tflog.SetField(ctx, "client_token", clientToken)
 
 	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "client_secret")
 	tflog.Debug(ctx, "Creating FirecREST Client")
@@ -120,7 +109,6 @@ func (p *firecrestProvider) Resources(ctx context.Context) []func() resource.Res
 	return []func() resource.Resource{
 		NewFirecrestJobResource,
 	}
-	// return nil
 }
 
 func (p *firecrestProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
@@ -130,9 +118,6 @@ func (p *firecrestProvider) DataSources(ctx context.Context) []func() datasource
 }
 
 func (p *firecrestProvider) Functions(ctx context.Context) []func() function.Function {
-	// return []func() function.Function{
-	// 	NewExampleFunction,
-	// }
 	return nil
 }
 

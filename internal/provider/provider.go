@@ -5,11 +5,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/function"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -36,6 +34,7 @@ type firecrestProviderModel struct {
 	// Endpoint types.String `tfsdk:"endpoint"`
 	ClientID     types.String `tfsdk:"client_id"`
 	ClientSecret types.String `tfsdk:"client_secret"`
+	ClientToken  types.String `tfsdk:"client_token"`
 }
 
 func (p *firecrestProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -50,11 +49,16 @@ func (p *firecrestProvider) Schema(ctx context.Context, req provider.SchemaReque
 		Attributes: map[string]schema.Attribute{
 			"client_id": schema.StringAttribute{
 				Description: "Client ID for firecREST API. Provided by https://oidc-dashboard-prod.cscs.ch/",
-				Required:    true,
+				Optional:    true,
 			},
 			"client_secret": schema.StringAttribute{
 				Description: "Client Secret for firecREST API. Provided by https://oidc-dashboard-prod.cscs.ch/",
-				Required:    true,
+				Optional:    true,
+				Sensitive:   true,
+			},
+			"client_token": schema.StringAttribute{
+				Description: "Client Token for firecREST API. Provided by the KeyCloak login.",
+				Optional:    true,
 				Sensitive:   true,
 			},
 		},
@@ -74,26 +78,20 @@ func (p *firecrestProvider) Configure(ctx context.Context, req provider.Configur
 
 	clientID := config.ClientID.ValueString()
 	clientSecret := config.ClientSecret.ValueString()
+	clientToken := config.ClientToken.ValueString()
 
-	// resp.Diagnostics.AddWarning("ci sono", clientSecret)
-
-	if clientID == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("clientID"),
-			"Missing firecREST clientID",
-			"The provider cannot create the firecREST API client as there is a missing or empty value for the firecREST API clientID. "+
-				"Set the clientID value in the configuration."+
-				"Ensure the value is not empty.",
+	if clientToken == "" && (clientID == "" || clientSecret == "") {
+		resp.Diagnostics.AddError(
+			"Configuration Error",
+			"Either `client_token` must be set or both `client_id` and `client_secret` must be set.",
 		)
+		return
 	}
 
-	if clientSecret == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("clientSecret"),
-			"Missing firecREST clientSecret",
-			"The provider cannot create the firecREST API client as there is a missing or empty value for the firecREST API clientSecret. "+
-				"Set the clientSecret value in the configuration."+
-				"Ensure the value is not empty.",
+	if clientToken != "" && (clientID != "" || clientSecret != "") {
+		resp.Diagnostics.AddWarning(
+			"Potential Misconfiguration",
+			"When using `client_token`, `client_id` and `client_secret` should be unset.",
 		)
 	}
 
@@ -103,17 +101,25 @@ func (p *firecrestProvider) Configure(ctx context.Context, req provider.Configur
 
 	ctx = tflog.SetField(ctx, "clientID", clientID)
 	ctx = tflog.SetField(ctx, "client_secret", clientSecret)
+	ctx = tflog.SetField(ctx, "client_token", clientToken)
+
 	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "client_secret")
 	tflog.Debug(ctx, "Creating FirecREST Client")
 
 	client := NewFireCrestClient(baseURL, "")
-	token, err := client.GetToken(clientID, clientSecret)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to retrieve token", err.Error())
-		return
+
+	var token string
+	if clientToken == "" {
+		var err error
+		token, err = client.GetToken(clientID, clientSecret)
+		if err != nil {
+			resp.Diagnostics.AddError("Failed to retrieve token", err.Error())
+			return
+		}
+	} else {
+		token = clientToken
 	}
 
-	// client.apiToken = token
 	client.SetToken(token)
 	p.client = client
 
@@ -122,9 +128,6 @@ func (p *firecrestProvider) Configure(ctx context.Context, req provider.Configur
 
 	tflog.Debug(ctx, "API Token"+token)
 	tflog.Info(ctx, "Configured FirecREST client successfully! ")
-
-	// tflog.Debug(ctx, fmt.Sprintf("+++ DataSourceData type: %T", p))
-	// log.Println("DataSourceData type:", fmt.Sprintf("%T", p))
 
 }
 

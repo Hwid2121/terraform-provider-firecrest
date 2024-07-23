@@ -74,8 +74,6 @@ func (c *FirecrestClient) GetToken(clientID, clientSecret string) (string, error
 
 	log.Println("baseURL: ", c.baseURL)
 
-	// log.Println("Request Body:", data.Encode())
-
 	req, err := http.NewRequest("POST", "https://auth.cscs.ch//auth/realms/firecrest-clients/protocol/openid-connect/token", bytes.NewBufferString(data.Encode()))
 	if err != nil {
 		return "", err

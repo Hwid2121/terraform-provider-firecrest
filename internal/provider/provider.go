@@ -80,21 +80,6 @@ func (p *firecrestProvider) Configure(ctx context.Context, req provider.Configur
 	clientSecret := config.ClientSecret.ValueString()
 	clientToken := config.ClientToken.ValueString()
 
-	if clientToken == "" && (clientID == "" || clientSecret == "") {
-		resp.Diagnostics.AddError(
-			"Configuration Error",
-			"Either `client_token` must be set or both `client_id` and `client_secret` must be set.",
-		)
-		return
-	}
-
-	if clientToken != "" && (clientID != "" || clientSecret != "") {
-		resp.Diagnostics.AddWarning(
-			"Potential Misconfiguration",
-			"When using `client_token`, `client_id` and `client_secret` should be unset.",
-		)
-	}
-
 	if resp.Diagnostics.HasError() {
 		return
 	}

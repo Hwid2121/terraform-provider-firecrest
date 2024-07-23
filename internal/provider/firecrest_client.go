@@ -287,13 +287,6 @@ func (c *FirecrestClient) downloadFileContent(ctx context.Context, jobID, accoun
 	return trimmedContent, nil
 }
 
-// func (c *FirecrestClient) waitForTaskCompletition() error {
-
-// 	time.Sleep(30 * time.Second)
-
-// 	return nil
-// }
-
 func (c *FirecrestClient) UploadJob(JobScript, Account, Env, MachineName string) (string, error) {
 
 	var b bytes.Buffer
@@ -337,7 +330,8 @@ func (c *FirecrestClient) UploadJob(JobScript, Account, Env, MachineName string)
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusAccepted {
-		return "", fmt.Errorf("failed to submit job, status code: %s", resp.Status)
+		responseBody, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("failed to submit job, status code: %s - %s", resp.Status, string(responseBody))
 	}
 
 	var result map[string]interface{}

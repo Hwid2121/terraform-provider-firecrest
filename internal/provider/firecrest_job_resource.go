@@ -228,7 +228,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error submitting Job",
-			fmt.Sprintf("Could not submit job: %s %s %s", r.client.baseURL, r.client.apiToken, err.Error()),
+			fmt.Sprintf("Could not submit job: %s", err.Error()),
 		)
 		return
 	}
@@ -377,7 +377,7 @@ func (f *firecrestJobResource) Update(ctx context.Context, req resource.UpdateRe
 	newTaskID, err := f.client.UploadJob(
 		jobScript, plan.AccountName.ValueString(),
 		plan.Env.ValueString(), plan.MachineName.ValueString())
-
+Could not submit job
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error updating Job",

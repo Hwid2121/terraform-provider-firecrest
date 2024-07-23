@@ -377,7 +377,6 @@ func (f *firecrestJobResource) Update(ctx context.Context, req resource.UpdateRe
 	newTaskID, err := f.client.UploadJob(
 		jobScript, plan.AccountName.ValueString(),
 		plan.Env.ValueString(), plan.MachineName.ValueString())
-Could not submit job
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error updating Job",

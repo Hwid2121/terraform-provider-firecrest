@@ -171,7 +171,6 @@ func (c *FirecrestClient) WaitForJobID(ctx context.Context, taskID string) (stri
 		}
 		time.Sleep(5 * time.Second)
 
-		// return "", fmt.Errorf("task %s boh. \n Description: \t %s", taskID, taskStatus.Description)
 	}
 
 }

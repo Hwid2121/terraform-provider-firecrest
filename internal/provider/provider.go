@@ -20,7 +20,6 @@ var _ provider.Provider = &firecrestProvider{}
 
 // var _ provider.ProviderWithFunctions = &ScaffoldingProvider{}
 
-// ScaffoldingProvider defines the provider implementation.
 type firecrestProvider struct {
 	client  *FirecrestClient
 	version string

@@ -192,7 +192,10 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	if r.client.apiToken == "" {
 		r.client.apiToken = plan.Token.ValueString()
 	}
-	r.client.baseURL = plan.BaseURL.ValueString()
+
+	if plan.BaseURL.ValueString() != "" {
+		r.client.baseURL = plan.BaseURL.ValueString()
+	}
 
 	var jobScript string
 	var err error

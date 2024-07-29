@@ -61,7 +61,6 @@ env SHELL=/bin/bash HOME=/home/coder PATH=/usr/local/sbin:/usr/local/bin:/usr/sb
 resource "firecrest_job" "job" {
   token          = "TOKEN-TESTING"
   base_url       = "https://firecrest-tds.cscs.ch"
-  client         = ""
   job_name       = ""
   account        = ""
   email          = ""

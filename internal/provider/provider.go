@@ -20,7 +20,6 @@ var _ provider.Provider = &firecrestProvider{}
 
 // var _ provider.ProviderWithFunctions = &ScaffoldingProvider{}
 
-// ScaffoldingProvider defines the provider implementation.
 type firecrestProvider struct {
 	client  *FirecrestClient
 	version string
@@ -82,7 +81,7 @@ func (p *firecrestProvider) Configure(ctx context.Context, req provider.Configur
 	client := NewFireCrestClient(baseURL, "")
 
 	var token string
-	if clientID != "" {
+	if clientID != "" && clientSecret != "" {
 		var err error
 		token, err = client.GetToken(clientID, clientSecret)
 		if err != nil {

@@ -18,8 +18,8 @@ data "coder_external_auth" "keycloak" {
 }
 
 provider "firecrest" {
-  client_id     = "firecrest-ntafta-coder"
-  client_secret = "D1wLfcA3BfVzxYA7eJ7AivIEklWNTH3C"
+  client_id     = ""
+  client_secret = ""
 
   # client_id     = ""
   # client_secret = ""
@@ -61,10 +61,9 @@ env SHELL=/bin/bash HOME=/home/coder PATH=/usr/local/sbin:/usr/local/bin:/usr/sb
 resource "firecrest_job" "job" {
   token          = "TOKEN-TESTING"
   base_url       = "https://firecrest-tds.cscs.ch"
-  client         = "ntafta"
-  job_name       = "coder-job"
-  account        = "csstaff"
-  email          = "nicolotafta@gmail.com"
+  job_name       = ""
+  account        = ""
+  email          = ""
   hours          = 0
   minutes        = 8
   nodes          = 1

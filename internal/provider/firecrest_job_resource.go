@@ -40,9 +40,6 @@ type firecrestJobResourceModel struct {
 	TaskId      types.String `tfsdk:"task_id"`
 	PathURL     types.String `tfsdk:"path_url"`
 
-	NodeIP types.String `tfsdk:"node_ip"`
-	Client types.String `tfsdk:"client"`
-
 	JobName      types.String `tfsdk:"job_name"`
 	Email        types.String `tfsdk:"email"`
 	Hours        types.Int64  `tfsdk:"hours"`
@@ -124,10 +121,6 @@ func (f *firecrestJobResource) Schema(ctx context.Context, req resource.SchemaRe
 				Description: "The hours allocated for the job.",
 				Required:    true,
 			},
-			"node_ip": schema.StringAttribute{
-				Description: "The IP of the computed node.",
-				Computed:    true,
-			},
 			"minutes": schema.Int64Attribute{
 				Description: "The minutes allocated for the job.",
 				Required:    true,
@@ -158,10 +151,6 @@ func (f *firecrestJobResource) Schema(ctx context.Context, req resource.SchemaRe
 			},
 			"executable": schema.StringAttribute{
 				Description: "The executable to run in the job.",
-				Required:    true,
-			},
-			"client": schema.StringAttribute{
-				Description: "The name of the client.",
 				Required:    true,
 			},
 		},
@@ -203,7 +192,10 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	if r.client.apiToken == "" {
 		r.client.apiToken = plan.Token.ValueString()
 	}
-	r.client.baseURL = plan.BaseURL.ValueString()
+
+	if plan.BaseURL.ValueString() != "" {
+		r.client.baseURL = plan.BaseURL.ValueString()
+	}
 
 	var jobScript string
 	var err error
@@ -260,17 +252,6 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	plan.JobID = types.StringValue(jobID)
 	plan.State = types.StringValue("SUBMITTED")
 	plan.OutputFile = types.StringValue("")
-
-	nodeIP, err := r.client.TestingFileForIP(ctx, taskID, jobID, plan.Client.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error creating the file for node IP not coder.",
-			fmt.Sprintf("Could not create the file: %s", err.Error()),
-		)
-		return
-	}
-
-	plan.NodeIP = types.StringValue(nodeIP)
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)

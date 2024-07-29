@@ -17,11 +17,9 @@ import (
 )
 
 type FirecrestClient struct {
-	clientID     string
-	clientSecret string
-	baseURL      string
-	apiToken     string
-	httpClient   *http.Client
+	baseURL    string
+	apiToken   string
+	httpClient *http.Client
 }
 
 type JobStatus struct {
@@ -58,10 +56,8 @@ type TaskData struct {
 
 func NewFireCrestClient(clientID, clientSecret string) *FirecrestClient {
 	return &FirecrestClient{
-		clientID:     clientID,
-		clientSecret: clientSecret,
-		httpClient:   &http.Client{},
-		baseURL:      "https://firecrest.cscs.ch",
+		httpClient: &http.Client{},
+		baseURL:    "https://firecrest.cscs.ch",
 	}
 }
 
@@ -171,6 +167,7 @@ func (c *FirecrestClient) WaitForJobID(ctx context.Context, taskID string) (stri
 		}
 		time.Sleep(5 * time.Second)
 
+		// return "", fmt.Errorf("task %s boh. \n Description: \t %s", taskID, taskStatus.Description)
 	}
 
 }

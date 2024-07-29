@@ -49,6 +49,8 @@ resource "firecrest_job" "example" {
 
 ### Optional
 
+- `client_id` (String) Client ID for firecREST API. Provided by https://oidc-dashboard-prod.cscs.ch/
+- `client_secret` (String, Sensitive) Client Secret for firecREST API. Provided by https://oidc-dashboard-prod.cscs.ch/
 - `constraint` (String) The constraint for the job submission.
 - `email` (String) Specify your email address to get notified when the job changes state.
 - `env` (String) The environment variables for the job.

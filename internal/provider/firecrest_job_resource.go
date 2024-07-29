@@ -26,20 +26,21 @@ type firecrestJobResource struct {
 }
 
 type firecrestJobResourceModel struct {
-	Token   types.String `tfsdk:"token"`
-	BaseURL types.String `tfsdk:"base_url"`
+	ClientID     types.String `tfsdk:"client_id"`
+	ClientSecret types.String `tfsdk:"client_secret"`
 
-	ID          types.String `tfsdk:"id"`
-	JobID       types.String `tfsdk:"job_id"`
-	State       types.String `tfsdk:"state"`
-	OutputFile  types.String `tfsdk:"output_file"`
-	JobScript   types.String `tfsdk:"job_script"`
-	MachineName types.String `tfsdk:"machine_name"`
-	AccountName types.String `tfsdk:"account"`
-	Env         types.String `tfsdk:"env"`
-	TaskId      types.String `tfsdk:"task_id"`
-	PathURL     types.String `tfsdk:"path_url"`
-
+	Token        types.String `tfsdk:"token"`
+	BaseURL      types.String `tfsdk:"base_url"`
+	ID           types.String `tfsdk:"id"`
+	JobID        types.String `tfsdk:"job_id"`
+	State        types.String `tfsdk:"state"`
+	OutputFile   types.String `tfsdk:"output_file"`
+	JobScript    types.String `tfsdk:"job_script"`
+	MachineName  types.String `tfsdk:"machine_name"`
+	AccountName  types.String `tfsdk:"account"`
+	Env          types.String `tfsdk:"env"`
+	TaskId       types.String `tfsdk:"task_id"`
+	PathURL      types.String `tfsdk:"path_url"`
 	JobName      types.String `tfsdk:"job_name"`
 	Email        types.String `tfsdk:"email"`
 	Hours        types.Int64  `tfsdk:"hours"`
@@ -58,6 +59,15 @@ func (f *firecrestJobResource) Schema(ctx context.Context, req resource.SchemaRe
 	resp.Schema = schema.Schema{
 		Description: "Manages a FirecREST Job.",
 		Attributes: map[string]schema.Attribute{
+			"client_id": schema.StringAttribute{
+				Description: "Client ID for firecREST API. Provided by https://oidc-dashboard-prod.cscs.ch/",
+				Optional:    true,
+			},
+			"client_secret": schema.StringAttribute{
+				Description: "Client Secret for firecREST API. Provided by https://oidc-dashboard-prod.cscs.ch/",
+				Optional:    true,
+				Sensitive:   true,
+			},
 			"token": schema.StringAttribute{
 				Description: "Token from the KeyCloak loging.",
 				Optional:    true,
@@ -179,6 +189,20 @@ func (f *firecrestJobResource) Metadata(_ context.Context, req resource.Metadata
 	resp.TypeName = req.ProviderTypeName + "_job"
 }
 
+func (r *firecrestJobResource) createOrUpdateToken(ctx context.Context, plan *firecrestJobResourceModel, resp *resource.CreateResponse) {
+	clientID := plan.ClientID.ValueString()
+	clientSecret := plan.ClientSecret.ValueString()
+
+	if clientID != "" && clientSecret != "" {
+		token, err := r.client.GetToken(clientID, clientSecret)
+		if err != nil {
+			resp.Diagnostics.AddError("Failed to retrieve token", err.Error())
+			return
+		}
+		r.client.SetToken(token)
+	}
+}
+
 // Create implements resource.Resource.
 func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan firecrestJobResourceModel
@@ -190,7 +214,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	if r.client.apiToken == "" {
-		r.client.apiToken = plan.Token.ValueString()
+		r.createOrUpdateToken(ctx, &plan, resp)
 	}
 
 	if plan.BaseURL.ValueString() != "" {
@@ -333,7 +357,6 @@ func (f *firecrestJobResource) Update(ctx context.Context, req resource.UpdateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 	if f.client.apiToken == "" {
 		f.client.apiToken = plan.Token.ValueString()
 	}

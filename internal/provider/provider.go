@@ -12,7 +12,7 @@ import (
 )
 
 // const baseURL = "https://firecrest.cscs.ch".
-const baseURL = "/auth/realms/firecrest-clients/protocol/openid-connect/token"
+// const baseURL = "/auth/realms/firecrest-clients/protocol/openid-connect/token"
 
 // Ensure ScaffoldingProvider satisfies various provider interfaces.
 var _ provider.Provider = &firecrestProvider{}

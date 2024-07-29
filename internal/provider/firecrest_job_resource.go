@@ -189,7 +189,7 @@ func (f *firecrestJobResource) Metadata(_ context.Context, req resource.Metadata
 	resp.TypeName = req.ProviderTypeName + "_job"
 }
 
-func (r *firecrestJobResource) createOrUpdateToken(ctx context.Context, plan *firecrestJobResourceModel, resp *resource.CreateResponse) {
+func (r *firecrestJobResource) createOrUpdateToken(plan *firecrestJobResourceModel, resp *resource.CreateResponse) {
 	clientID := plan.ClientID.ValueString()
 	clientSecret := plan.ClientSecret.ValueString()
 
@@ -214,7 +214,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	if r.client.apiToken == "" {
-		r.createOrUpdateToken(ctx, &plan, resp)
+		r.createOrUpdateToken(&plan, resp)
 	}
 
 	if plan.BaseURL.ValueString() != "" {

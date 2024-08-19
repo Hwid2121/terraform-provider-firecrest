@@ -189,17 +189,18 @@ func (f *firecrestJobResource) Metadata(_ context.Context, req resource.Metadata
 	resp.TypeName = req.ProviderTypeName + "_job"
 }
 
-func (r *firecrestJobResource) createOrUpdateToken(plan *firecrestJobResourceModel, resp *resource.CreateResponse) {
+func (r *firecrestJobResource) createOrUpdateToken(plan *firecrestJobResourceModel) {
 	clientID := plan.ClientID.ValueString()
 	clientSecret := plan.ClientSecret.ValueString()
 
 	if clientID != "" && clientSecret != "" {
 		token, err := r.client.GetToken(clientID, clientSecret)
 		if err != nil {
-			resp.Diagnostics.AddError("Failed to retrieve token", err.Error())
 			return
 		}
 		r.client.SetToken(token)
+	} else {
+		r.client.SetToken(plan.Token.String())
 	}
 }
 
@@ -213,9 +214,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	if r.client.apiToken == "" {
-		r.createOrUpdateToken(&plan, resp)
-	}
+	r.createOrUpdateToken(&plan)
 
 	if plan.BaseURL.ValueString() != "" {
 		r.client.baseURL = plan.BaseURL.ValueString()
@@ -244,7 +243,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error submitting Job",
-			fmt.Sprintf("Could not submit job: %s", err.Error()),
+			fmt.Sprintf("Could not submit job: %s, qua %s", err.Error(), r.client.apiToken),
 		)
 		return
 	}
@@ -265,8 +264,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	// creation of file containing the computed Node IP.
-	ctx = tflog.SetField(ctx, "JOBID2: ", jobID)
+	ctx = tflog.SetField(ctx, "JOBID: ", jobID)
 
 	tflog.Debug(ctx, "CREATE status")
 
@@ -286,60 +284,51 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 }
 
 // Delete implements resource.Resource.
-func (f *firecrestJobResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *firecrestJobResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var plan firecrestJobResourceModel
+
 	diags := req.State.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if f.client.apiToken == "" {
-		f.client.apiToken = plan.Token.ValueString()
-	}
-	f.client.baseURL = plan.BaseURL.ValueString()
+	r.createOrUpdateToken(&plan)
 
-	err := f.client.DeleteJob(plan.JobID.ValueString(), plan.MachineName.ValueString())
+	if plan.BaseURL.ValueString() != "" {
+		r.client.baseURL = plan.BaseURL.ValueString()
+	}
+
+	err := r.client.DeleteJob(plan.JobID.ValueString(), plan.MachineName.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Deleting Job",
-			fmt.Sprintf("Could not delete job: %s", err.Error()),
+			fmt.Sprintf("Could not delete job: %s, qua: %s , e qua: %s", err.Error(), r.client.apiToken, r.client.baseURL),
 		)
 		return
 	}
 }
 
 // Read implements resource.Resource.
-func (f *firecrestJobResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *firecrestJobResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var plan firecrestJobResourceModel
-
 	diags := req.State.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if f.client.apiToken == "" {
-		f.client.apiToken = plan.Token.ValueString()
+	r.createOrUpdateToken(&plan)
+
+	if plan.BaseURL.ValueString() != "" {
+		r.client.baseURL = plan.BaseURL.ValueString()
 	}
-	f.client.baseURL = plan.BaseURL.ValueString()
 
 	jobID := plan.JobID.String()
 	jobID = strings.Trim(jobID, "=\"")
 
 	ctx = tflog.SetField(ctx, "JOBID: ", jobID)
 	tflog.Debug(ctx, "READ status")
-
-	jobStatus, err := f.client.GetJobStatus(ctx, plan.JobID.ValueString(), plan.MachineName.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error reading Job",
-			fmt.Sprintf("Could not read job status: %s", err.Error()),
-		)
-		return
-	}
-
-	plan.State = types.StringValue(jobStatus.Success)
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -349,18 +338,19 @@ func (f *firecrestJobResource) Read(ctx context.Context, req resource.ReadReques
 }
 
 // Update implements resource.Resource.
-func (f *firecrestJobResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *firecrestJobResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan firecrestJobResourceModel
-
-	diags := req.Plan.Get(ctx, &plan)
+	diags := req.State.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	if f.client.apiToken == "" {
-		f.client.apiToken = plan.Token.ValueString()
+
+	r.createOrUpdateToken(&plan)
+
+	if plan.BaseURL.ValueString() != "" {
+		r.client.baseURL = plan.BaseURL.ValueString()
 	}
-	f.client.baseURL = plan.BaseURL.ValueString()
 
 	var jobScript string
 	var err error
@@ -378,7 +368,7 @@ func (f *firecrestJobResource) Update(ctx context.Context, req resource.UpdateRe
 		jobScript = plan.JobScript.ValueString()
 	}
 
-	newTaskID, err := f.client.UploadJob(
+	newTaskID, err := r.client.UploadJob(
 		jobScript, plan.AccountName.ValueString(),
 		plan.Env.ValueString(), plan.MachineName.ValueString())
 	if err != nil {
@@ -392,7 +382,7 @@ func (f *firecrestJobResource) Update(ctx context.Context, req resource.UpdateRe
 	ctx = tflog.SetField(ctx, "New Task ID: ", newTaskID)
 	tflog.Debug(ctx, "Created new Task for update!")
 
-	newJobID, err := f.client.WaitForJobID(ctx, newTaskID)
+	newJobID, err := r.client.WaitForJobID(ctx, newTaskID)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error waiting for new jobID",
@@ -403,7 +393,7 @@ func (f *firecrestJobResource) Update(ctx context.Context, req resource.UpdateRe
 
 	// Optionally delete the old job
 	if plan.JobID.ValueString() != "" {
-		err = f.client.DeleteJob(plan.JobID.ValueString(), plan.MachineName.ValueString())
+		err = r.client.DeleteJob(plan.JobID.ValueString(), plan.MachineName.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error deleting old Job",

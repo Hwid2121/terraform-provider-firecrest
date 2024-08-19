@@ -166,22 +166,22 @@ func (c *FirecrestClient) WaitForJobID(ctx context.Context, taskID string) (stri
 			}
 		}
 		time.Sleep(5 * time.Second)
-
-		// return "", fmt.Errorf("task %s boh. \n Description: \t %s", taskID, taskStatus.Description)
 	}
-
 }
 
 func (c *FirecrestClient) DeleteJob(jobID, machineName string) error {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/compute/jobs/%s", c.baseURL, jobID), nil)
+	url := fmt.Sprintf("https://firecrest.cscs.ch/compute/jobs/%s", jobID)
+
+	// Create the HTTP DELETE request
+	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		return err
 	}
 
 	req.Header.Set("Authorization", "Bearer "+c.apiToken)
-	req.Header.Set("Content-Type", "application/json")
+	// req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("accept", "application/json")
-	req.Header.Set("X-Machine-Name", machineName)
+	req.Header.Set("X-Machine-Name", "daint")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -194,42 +194,6 @@ func (c *FirecrestClient) DeleteJob(jobID, machineName string) error {
 	}
 
 	return nil
-}
-
-func (c *FirecrestClient) GetJobStatus(ctx context.Context, jobID string, machineName string) (*JobStatus, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/compute/jobs/%s", c.baseURL, jobID), nil)
-
-	ctx = tflog.SetField(ctx, "Get Job Status req: ", req)
-	tflog.Debug(ctx, "Get Job Status ")
-
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Authorization", "Bearer "+c.apiToken)
-	req.Header.Set("accept", "application/json")
-	req.Header.Set("X-Machine-Name", machineName)
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to get job status, status code: %s", resp.Status)
-	}
-
-	var jobStatus JobStatus
-	if err := json.NewDecoder(resp.Body).Decode(&jobStatus); err != nil {
-		return nil, err
-	}
-
-	ctx = tflog.SetField(ctx, "Job Status  ", jobStatus)
-	tflog.Debug(ctx, "job status json")
-	return &jobStatus, nil
-
 }
 
 func (c *FirecrestClient) UploadJob(JobScript, Account, Env, MachineName string) (string, error) {

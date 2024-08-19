@@ -2,7 +2,7 @@ terraform {
   required_providers {
     firecrest = {
       # source = "Hwid2121/firecrest"
-            source = "registry.terraform.io/hashicorp/firecrest"
+      source = "registry.terraform.io/hashicorp/firecrest"
 
       # version = "0.2.6"
     }
@@ -33,10 +33,18 @@ locals {
 }
 
 resource "firecrest_job" "job" {
-
+  client_id     = "firecrest-ntafta-coder"
+  client_secret = ""
+  # client_id     = ""
+  # client_secret = ""
+  base_url       = "https://firecrest-tds.cscs.ch"
+  token          = ""
+  job_name       = "coder-job"
+  account        = ""
+  email          = "nicolotafta@gmail.com"
   hours          = 0
   minutes        = 5
-  nodes          = 1                            
+  nodes          = 1
   tasks_per_core = 1
   tasks_per_node = 1
   cpus_per_task  = 6
@@ -62,7 +70,7 @@ resource "firecrest_job" "job" {
 #   startup_script = <<-EOT
 # EOT
 
-  
+
 # }
 
 

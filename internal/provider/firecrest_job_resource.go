@@ -28,7 +28,6 @@ type firecrestJobResource struct {
 type firecrestJobResourceModel struct {
 	ClientID     types.String `tfsdk:"client_id"`
 	ClientSecret types.String `tfsdk:"client_secret"`
-
 	Token        types.String `tfsdk:"token"`
 	BaseURL      types.String `tfsdk:"base_url"`
 	ID           types.String `tfsdk:"id"`
@@ -200,7 +199,7 @@ func (r *firecrestJobResource) createOrUpdateToken(plan *firecrestJobResourceMod
 		}
 		r.client.SetToken(token)
 	} else {
-		r.client.SetToken(plan.Token.String())
+		r.client.SetToken(plan.Token.ValueString())
 	}
 }
 
@@ -243,7 +242,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error submitting Job",
-			fmt.Sprintf("Could not submit job: %s, qua %s", err.Error(), r.client.apiToken),
+			fmt.Sprintf("Could not submit job: %s, qua %s banana", err.Error(), r.client.apiToken),
 		)
 		return
 	}

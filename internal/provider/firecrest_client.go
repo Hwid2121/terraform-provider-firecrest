@@ -179,7 +179,6 @@ func (c *FirecrestClient) DeleteJob(jobID, machineName string) error {
 	}
 
 	req.Header.Set("Authorization", "Bearer "+c.apiToken)
-	// req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("X-Machine-Name", "daint")
 

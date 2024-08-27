@@ -242,7 +242,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error submitting Job",
-			fmt.Sprintf("Could not submit job: %s, qua %s banana", err.Error(), r.client.apiToken),
+			fmt.Sprintf("Could not submit job: %s, API TOKEN: %s ", err.Error(), r.client.apiToken),
 		)
 		return
 	}

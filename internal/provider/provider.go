@@ -11,9 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// const baseURL = "https://firecrest.cscs.ch".
-// const baseURL = "/auth/realms/firecrest-clients/protocol/openid-connect/token"
-
 // Ensure ScaffoldingProvider satisfies various provider interfaces.
 var _ provider.Provider = &firecrestProvider{}
 

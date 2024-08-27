@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
+	// "strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -242,7 +242,7 @@ func (r *firecrestJobResource) Create(ctx context.Context, req resource.CreateRe
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error submitting Job",
-			fmt.Sprintf("Could not submit job: %s, qua %s banana", err.Error(), r.client.apiToken),
+			fmt.Sprintf("Could not submit job: %s, token %s ", err.Error(), r.client.apiToken),
 		)
 		return
 	}
@@ -308,32 +308,108 @@ func (r *firecrestJobResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 }
 
-// Read implements resource.Resource.
+// // Read implements resource.Resource.
+// func (r *firecrestJobResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+// 	var plan firecrestJobResourceModel
+// 	diags := req.State.Get(ctx, &plan)
+// 	resp.Diagnostics.Append(diags...)
+// 	if resp.Diagnostics.HasError() {
+// 		return
+// 	}
+
+// 	r.createOrUpdateToken(&plan)
+// 	r.readStatus(&plan)
+
+// 	if plan.BaseURL.ValueString() != "" {
+// 		r.client.baseURL = plan.BaseURL.ValueString()
+// 	}
+
+// 	jobID := plan.JobID.String()
+// 	jobID = strings.Trim(jobID, "=\"")
+
+// 	ctx = tflog.SetField(ctx, "JOBID: ", jobID)
+// 	tflog.Debug(ctx, "READ status")
+
+// 	diags = resp.State.Set(ctx, &plan)
+// 	resp.Diagnostics.Append(diags...)
+// 	if resp.Diagnostics.HasError() {
+// 		return
+// 	}
+// }
+
+// func  (r *firecrestJobResource) readStatus(plan *firecrestJobResourceModel) {
+
+// 	// check if is running
+// 	// check if is finished
+
+// 	// task, job, task, job
+
+// 	TASKID := plan.TaskId
+// 	JOBID := plan.JobID
+
+// }
+
 func (r *firecrestJobResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var plan firecrestJobResourceModel
+
+	// Get the current state from Terraform
 	diags := req.State.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
+	// Configure the client with token and base URL
 	r.createOrUpdateToken(&plan)
 
 	if plan.BaseURL.ValueString() != "" {
 		r.client.baseURL = plan.BaseURL.ValueString()
 	}
 
-	jobID := plan.JobID.String()
-	jobID = strings.Trim(jobID, "=\"")
+	// Fetch job status
+	jobID := plan.JobID.ValueString()
+	if jobID == "" {
+		resp.Diagnostics.AddError(
+			"Missing Job ID",
+			"Cannot read job status without a job ID.",
+		)
+		return
+	}
 
-	ctx = tflog.SetField(ctx, "JOBID: ", jobID)
-	tflog.Debug(ctx, "READ status")
+	// Get the task status using the job ID
+	jobStatus, err := r.client.GetJobStatus(ctx, jobID, plan.MachineName.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Fetching Job Status",
+			fmt.Sprintf("Failed to fetch job status: %s", err.Error()),
+		)
+		return
+	}
+
+	// taskStatus, err := r.client.GetTaskStatus(ctx, jobStatus.TaskID)
+	// if err != nil {
+	// 	resp.Diagnostics.AddError(
+	// 		"Error Fetching Task Status",
+	// 		fmt.Sprintf("Failed to fetch task status: %s", err.Error()),
+	// 	)
+	// 	return
+	// }
+
+	// if (taskStatus.Description == "Finished successfully") {
+	plan.State = types.StringValue("FINISHED")
+	// }
+
+	plan.TaskId = types.StringValue(jobStatus.TaskID)
+	plan.ID = types.StringValue(jobStatus.TaskID)
+	plan.OutputFile = types.StringValue("")
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	tflog.Debug(ctx, "Read operation completed successfully")
 }
 
 // Update implements resource.Resource.

@@ -2,7 +2,7 @@
 #SBATCH --job-name="coder-job"
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user="nicolotafta@gmail.com"
-#SBATCH --time=00:05:00
+#SBATCH --time=00:03:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=1

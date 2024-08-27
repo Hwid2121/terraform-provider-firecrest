@@ -138,6 +138,44 @@ func (c *FirecrestClient) GetTaskStatus(ctx context.Context, taskID string) (*Ta
 	return &taskStatus.Task, nil
 }
 
+func (c *FirecrestClient) GetJobStatus(ctx context.Context, jobID, machine string) (*JobStatus, error) {
+	// Create the HTTP request
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/compute/jobs?jobs=%s", c.baseURL, jobID), nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("X-Machine-Name", machine)
+	req.Header.Set("Authorization", "Bearer "+c.apiToken)
+	req.Header.Set("accept", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to get job status, status code: %s ", resp.Status)
+	}
+
+	// Parse the JSON response
+	var jobStatus struct {
+		Job JobStatus `json:"job"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&jobStatus); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	// Log the job status
+	ctx = tflog.SetField(ctx, "JobStatus", jobStatus.Job)
+	tflog.Debug(ctx, "Job status retrieved")
+
+	// Return the job status
+	return &jobStatus.Job, nil
+}
+
 func (c *FirecrestClient) WaitForJobID(ctx context.Context, taskID string) (string, error) {
 
 	for {
@@ -179,7 +217,6 @@ func (c *FirecrestClient) DeleteJob(jobID, machineName string) error {
 	}
 
 	req.Header.Set("Authorization", "Bearer "+c.apiToken)
-	// req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("X-Machine-Name", "daint")
 
